@@ -1,0 +1,378 @@
+openapi: 3.0.3
+info:
+  title: Todo App API
+  description: A complete API for managing todos with reminders, categories, tags, and memos.
+  version: 1.0.0
+servers:
+  - url: https://api.todoapp.com/v1
+    description: Production server
+
+components:
+  schemas:
+    # 通用错误响应模型
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: NOT_FOUND
+            message:
+              type: string
+              example: Resource not found
+            details:
+              type: object
+
+    # 核心模型定义
+    Todo:
+      type: object
+      required:
+        - title
+        - status
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        title:
+          type: string
+          example: "Complete project report"
+        description:
+          type: string
+          example: "Finalize sections 3-5"
+        status:
+          type: string
+          enum: [pending, in_progress, completed]
+          default: pending
+        dueDate:
+          type: string
+          format: date-time
+          example: "2024-03-01T15:00:00Z"
+        categoryId:
+          type: string
+          format: uuid
+        tagIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+        memoId:
+          type: string
+          format: uuid
+
+    Reminder:
+      type: object
+      required:
+        - time
+      properties:
+        id:
+          type: string
+          format: uuid
+        todoId:
+          type: string
+          format: uuid
+        time:
+          type: string
+          format: date-time
+          example: "2024-02-28T09:00:00Z"
+        notifyMethod:
+          type: string
+          enum: [email, push, sms]
+          default: push
+
+    Category:
+      type: object
+      required:
+        - name
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: "Work"
+        color:
+          type: string
+          example: "#FF5733"
+
+    Tag:
+      type: object
+      required:
+        - name
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: "urgent"
+
+    Memo:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        content:
+          type: string
+          example: "Need to discuss with team before submission"
+        attachments:
+          type: array
+          items:
+            type: string
+            format: uri
+            example: "https://example.com/file.pdf"
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+paths:
+  # ==================== Todos ====================
+  /todos:
+    get:
+      summary: List all todos
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, in_progress, completed]
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        200:
+          description: A paginated list of todos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Todo"
+                  pagination:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+
+    post:
+      summary: Create a new todo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                categoryId:
+                  type: string
+                  format: uuid
+                tagIds:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+              required:
+                - title
+      responses:
+        201:
+          description: Todo created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Todo"
+
+  /todos/{todoId}:
+    parameters:
+      - name: todoId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      summary: Get a todo by ID
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Todo"
+        404:
+          $ref: "#/components/responses/NotFound"
+
+    put:
+      summary: Update a todo
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Todo"
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Todo"
+
+    delete:
+      summary: Delete a todo
+      responses:
+        204:
+          description: Successfully deleted
+        404:
+          $ref: "#/components/responses/NotFound"
+
+  # ==================== Reminders ====================
+  /todos/{todoId}/reminders:
+    parameters:
+      - $ref: "#/paths/~1todos~1{todoId}/parameters/0"
+    get:
+      summary: Get reminders for a todo
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Reminder"
+
+    post:
+      summary: Create a reminder
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Reminder"
+      responses:
+        201:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Reminder"
+
+  # ==================== Categories ====================
+  /categories:
+    get:
+      summary: List all categories
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+
+    post:
+      summary: Create a new category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Category"
+      responses:
+        201:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+
+  # ==================== Tags ====================
+  /tags:
+    get:
+      summary: List all tags
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tag"
+
+    post:
+      summary: Create a new tag
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Tag"
+      responses:
+        201:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tag"
+
+  # ==================== Memos ====================
+  /memos/{memoId}:
+    parameters:
+      - name: memoId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      summary: Get a memo
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Memo"
+
+    put:
+      summary: Update a memo
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Memo"
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Memo"
+
+responses:
+  NotFound:
+    description: The specified resource was not found
+    content:
+      application/json:
+        schema:
+          $ref: "#/components/schemas/Error"
+
+security:
+  - BearerAuth: []
