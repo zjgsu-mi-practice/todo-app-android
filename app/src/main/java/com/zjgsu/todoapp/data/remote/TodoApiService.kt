@@ -4,7 +4,6 @@ import com.zjgsu.todoapp.data.model.Category
 import com.zjgsu.todoapp.data.model.Memo
 import com.zjgsu.todoapp.data.model.Reminder
 import com.zjgsu.todoapp.data.model.Todo
-import kotlinx.serialization.Serializable
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -74,20 +73,17 @@ interface TodoApiService {
     ): Response<Memo>
 }
 
-@Serializable
 data class PaginatedResponse<T>(
     val data: List<T>,
     val pagination: Pagination
 )
 
-@Serializable
 data class Pagination(
     val total: Int,
     val page: Int,
     val limit: Int
 )
 
-@Serializable
 data class CreateTodoRequest(
     val title: String,
     val description: String? = null,

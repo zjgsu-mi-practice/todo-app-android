@@ -57,12 +57,8 @@ dependencies {
 
     // Networking
     implementation(libs.retrofit)
-    implementation(libs.retrofit.kotlin.serialization)
     implementation(libs.retrofit.moshi)
     implementation(libs.okhttp.logging)
-
-    // Serialization
-    implementation(libs.kotlinx.serialization.json)
 
     // Coroutines
     implementation(libs.kotlinx.coroutines)
