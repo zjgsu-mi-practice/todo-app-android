@@ -1,16 +1,18 @@
 pluginManagement {
     repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.namespace == "com.android") {
+                useModule("com.android.tools.build:gradle:${requested.version}")
             }
         }
-        mavenCentral()
-        gradlePluginPortal()
     }
 }
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
@@ -21,3 +23,8 @@ dependencyResolutionManagement {
 
 rootProject.name = "TodoApp"
 include(":app")
+
+// Force clean Kotlin DSL cache
+gradle.startParameter.setProjectProperties(
+    mapOf("org.gradle.kotlin.dsl.cache.clean" to "true")
+)
