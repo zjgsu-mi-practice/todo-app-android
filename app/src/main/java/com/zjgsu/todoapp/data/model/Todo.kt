@@ -10,7 +10,7 @@ data class Todo(
     val status: TodoStatus,
     val dueDate: String? = null,
     val categoryId: UUID? = null,
-    val tagIds: List<String> = emptyList(),
+    val tagIds: List<String>? = null,
     val memoId: UUID? = null
 )
 

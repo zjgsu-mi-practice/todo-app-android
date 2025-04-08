@@ -24,7 +24,7 @@
 - [X] Implement base error handling
 
 ## 3. Basic Todo Functionality
-- [ ] Todo List Screen:
+- [X] Todo List Screen:
   - Fetch and display todos
   - Filter by status (pending/in progress/completed)
   - Pull-to-refresh

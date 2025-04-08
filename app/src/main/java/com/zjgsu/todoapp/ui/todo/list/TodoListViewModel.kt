@@ -3,6 +3,7 @@ package com.zjgsu.todoapp.ui.todo.list
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.zjgsu.todoapp.data.model.Todo
+import com.zjgsu.todoapp.data.model.TodoStatus
 import com.zjgsu.todoapp.data.repository.TodoRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -121,6 +122,35 @@ class TodoListViewModel(
                     it.copy(
                         error = error.message ?: "Failed to delete todo"
                     )
+                }
+            }
+        }
+    }
+
+    fun updateTodoStatus(todoId: String, newStatus: TodoStatus) {
+        viewModelScope.launch {
+            val todoToUpdate = _uiState.value.todos.firstOrNull { it.id.toString() == todoId }
+            todoToUpdate?.let { todo ->
+                val updatedTodo = todo.copy(status = newStatus)
+                // Optimistically update the todo in the list
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        todos = currentState.todos.map {
+                            if (it.id.toString() == todoId) updatedTodo else it
+                        }
+                    )
+                }
+                // Persist the change
+                todoRepository.updateTodo(updatedTodo).onFailure { error ->
+                    // Revert if update fails
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            todos = currentState.todos.map {
+                                if (it.id.toString() == todoId) todo else it
+                            },
+                            error = error.message ?: "Failed to update todo status"
+                        )
+                    }
                 }
             }
         }

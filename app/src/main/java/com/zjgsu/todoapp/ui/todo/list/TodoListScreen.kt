@@ -145,6 +145,9 @@ fun TodoListScreen(
                             TodoItem(
                                 onDeleteClick = { todoId -> viewModel.deleteTodo(todoId) },
                                 onItemClick = { todoId -> navController.navigate("addEditTodo?todoId=$todoId") },
+                                onStatusChange = { todoId, newStatus ->
+                                    viewModel.updateTodoStatus(todoId, newStatus)
+                                },
                                 todo = todo,
                                 modifier = Modifier.fillMaxWidth()
                             )
