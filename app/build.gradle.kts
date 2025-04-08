@@ -56,8 +56,8 @@ dependencies {
 
     // Networking
     implementation(libs.retrofit)
-    implementation(libs.retrofit.moshi)
-    implementation(libs.okhttp.logging)
+    implementation(libs.retrofit.gson)
+    implementation(libs.gson)
 
     // Coroutines
     implementation(libs.kotlinx.coroutines)

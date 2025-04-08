@@ -2,12 +2,18 @@ package com.zjgsu.todoapp.data.repository
 
 import com.zjgsu.todoapp.data.model.Todo
 import com.zjgsu.todoapp.data.remote.CreateTodoRequest
+import com.zjgsu.todoapp.data.remote.Pagination
 import com.zjgsu.todoapp.data.remote.TodoApiService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
+data class TodoPageResult(
+    val todos: List<Todo>,
+    val pagination: Pagination
+)
+
 interface TodoRepository {
-    fun getTodos(status: String? = null, page: Int = 1, limit: Int = 20): Flow<Result<List<Todo>>>
+    fun getTodos(status: String? = null, page: Int = 1, limit: Int = 20): Flow<Result<TodoPageResult>>
     suspend fun getTodo(todoId: String): Result<Todo>
     suspend fun createTodo(title: String, description: String? = null): Result<Todo>
     suspend fun updateTodo(todo: Todo): Result<Todo>
@@ -18,9 +24,14 @@ class TodoRepositoryImpl(
     private val apiService: TodoApiService
 ) : BaseRepository(), TodoRepository {
     
-    override fun getTodos(status: String?, page: Int, limit: Int): Flow<Result<List<Todo>>> = flow {
-        emit(safeApiCall { 
-            apiService.getTodos(status, page, limit).body()?.data ?: emptyList()
+    override fun getTodos(status: String?, page: Int, limit: Int): Flow<Result<TodoPageResult>> = flow {
+        emit(safeApiCall {
+            val response = apiService.getTodos(status, page, limit).body()
+                ?: throw Exception("Failed to fetch todos")
+            TodoPageResult(
+                todos = response.data,
+                pagination = response.pagination
+            )
         })
     }
 

@@ -4,6 +4,7 @@ import com.zjgsu.todoapp.data.model.Category
 import com.zjgsu.todoapp.data.model.Memo
 import com.zjgsu.todoapp.data.model.Reminder
 import com.zjgsu.todoapp.data.model.Todo
+import com.zjgsu.todoapp.data.model.Tag
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -12,7 +13,6 @@ import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
-import retrofit2.http.Tag
 
 interface TodoApiService {
     // Todos
