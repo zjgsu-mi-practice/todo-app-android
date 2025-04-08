@@ -1,5 +1,6 @@
 package com.zjgsu.todoapp.data.model
 
+import com.google.gson.annotations.SerializedName
 import java.util.UUID
 
 data class Todo(
@@ -14,18 +15,10 @@ data class Todo(
 )
 
 enum class TodoStatus {
+    @SerializedName("pending")
     PENDING,
+    @SerializedName("in_progress")
     IN_PROGRESS,
+    @SerializedName("completed")
     COMPLETED;
-
-    companion object {
-        fun fromString(value: String): TodoStatus {
-            return when (value.lowercase()) {
-                "pending" -> PENDING
-                "in_progress" -> IN_PROGRESS
-                "completed" -> COMPLETED
-                else -> throw IllegalArgumentException("Unknown TodoStatus: $value")
-            }
-        }
-    }
 }

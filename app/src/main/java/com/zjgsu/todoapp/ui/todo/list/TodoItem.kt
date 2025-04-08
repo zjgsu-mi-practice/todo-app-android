@@ -33,7 +33,7 @@ fun TodoItem(
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
-                text = todo.status?.toString() ?: "Pending",
+                text = todo.status.toString(),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
