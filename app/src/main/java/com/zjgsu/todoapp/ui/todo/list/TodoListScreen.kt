@@ -3,13 +3,14 @@ package com.zjgsu.todoapp.ui.todo.list
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.ui.Alignment
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.ui.Alignment
+import androidx.navigation.NavController
+import org.koin.androidx.compose.koinViewModel
 import androidx.compose.material3.*
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
@@ -22,7 +23,8 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TodoListScreen(
-    viewModel: TodoListViewModel,
+    navController: NavController,
+    viewModel: TodoListViewModel = koinViewModel(),
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -51,6 +53,13 @@ fun TodoListScreen(
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { navController.navigate("addEditTodo") }
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Add Todo")
+            }
+        },
         topBar = {
             TopAppBar(
                 title = { Text("Todo List") },
@@ -134,6 +143,8 @@ fun TodoListScreen(
                     ) {
                         items(uiState.todos) { todo ->
                             TodoItem(
+                                onDeleteClick = { todoId -> viewModel.deleteTodo(todoId) },
+                                onItemClick = { todoId -> navController.navigate("addEditTodo?todoId=$todoId") },
                                 todo = todo,
                                 modifier = Modifier.fillMaxWidth()
                             )

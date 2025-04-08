@@ -107,6 +107,25 @@ class TodoListViewModel(
         loadTodos(isRefresh = true)
     }
 
+    fun deleteTodo(todoId: String) {
+        viewModelScope.launch {
+            todoRepository.deleteTodo(todoId).onSuccess {
+                // Optimistically remove the todo from the list
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        todos = currentState.todos.filterNot { it.id.toString() == todoId }
+                    )
+                }
+            }.onFailure { error ->
+                _uiState.update {
+                    it.copy(
+                        error = error.message ?: "Failed to delete todo"
+                    )
+                }
+            }
+        }
+    }
+
     companion object {
         private const val PAGE_SIZE = 20
     }

@@ -7,8 +7,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
+import com.zjgsu.todoapp.ui.navigation.AppNavigation // Import AppNavigation
 import com.zjgsu.todoapp.ui.theme.TodoAppTheme
-import com.zjgsu.todoapp.ui.todo.list.TodoListScreen
+// Remove TodoListScreen import if no longer directly used here
 import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
@@ -26,7 +27,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun TodoApp() {
     val navController = rememberNavController()
-    TodoListScreen(viewModel = koinViewModel())
+    AppNavigation(navController = navController) // Use AppNavigation
 }
 
 @Preview(showBackground = true)
